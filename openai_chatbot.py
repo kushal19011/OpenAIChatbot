@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 st.set_page_config(page_title="OpenAI Chatbot", layout="wide", page_icon="🤖")
 
 # Load environment
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-base_url = os.getenv("OPENAI_BASE_URL")
+load_dotenv()api_key = st.secrets["OPENAI_API_KEY"]
+base_url = st.secrets["OPENAI_BASE_URL"]
+
 
 if not api_key:
     st.error("❌ OPENAI_API_KEY not found. Please add it to your .env file.")
