@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 st.set_page_config(page_title="OpenAI Chatbot", layout="wide", page_icon="🤖")
 
 # Load environment
-load_dotenv()api_key = st.secrets["OPENAI_API_KEY"]
+load_dotenv()
+api_key = st.secrets["OPENAI_API_KEY"]
 base_url = st.secrets["OPENAI_BASE_URL"]
 
 
