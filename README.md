@@ -1,6 +1,6 @@
 ﻿# 🤖 OpenAI GPT Chatbot
 
-A simple chatbot powered by OpenAI GPT models and Streamlit, styled like ChatGPT.
+A simple chatbot powered by GPT models and Streamlit.
 
 ## 🚀 Run Locally
 ```bash
