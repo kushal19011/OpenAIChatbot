@@ -1,29 +1,25 @@
-﻿from openai import OpenAI
-import os
+from openai import OpenAI
 import streamlit as st
-from dotenv import load_dotenv
 
-# Set up page config early
+# --- Setup page ---
 st.set_page_config(page_title="OpenAI Chatbot", layout="wide", page_icon="🤖")
 
-# Load environment
-load_dotenv()
-api_key = st.secrets["OPENAI_API_KEY"]
-base_url = st.secrets["OPENAI_BASE_URL"]
-
+# --- Load secrets from Streamlit ---
+api_key = st.secrets.get("OPENAI_API_KEY", "")
+base_url = st.secrets.get("OPENAI_BASE_URL", "")
 
 if not api_key:
-    st.error("❌ OPENAI_API_KEY not found. Please add it to your .env file.")
+    st.error("❌ OPENAI_API_KEY not found in Streamlit secrets. Please add it in Settings → Secrets.")
     st.stop()
 
 client = OpenAI(api_key=api_key, base_url=base_url)
 
-# --- Custom CSS for ChatGPT-style UI ---
+# --- Custom ChatGPT-style UI ---
 st.markdown("""
     <style>
         .main {
             background-color: #0e1117;
-            color: #ffffff;
+            color: white;
         }
         .chat-bubble {
             padding: 1rem;
@@ -46,37 +42,40 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Title
 st.markdown("<h1 style='color:white;'>🤖 OpenAI Chatbot</h1>", unsafe_allow_html=True)
 
-# Initialize chat history
+# --- Chat history ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Show past messages
 for msg in st.session_state.messages:
     role_class = "user" if msg["role"] == "user" else "assistant"
-    st.markdown(f"<div class='chat-bubble {role_class}'><strong>{msg['role'].capitalize()}:</strong><br>{msg['text']}</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='chat-bubble {role_class}'><strong>{msg['role'].capitalize()}:</strong><br>{msg['text']}</div>",
+        unsafe_allow_html=True
+    )
 
-# Input and response handler
+# --- Handle user input ---
 def handle_input():
     user_text = st.session_state.user_input.strip()
-    if user_text:
-        st.session_state.messages.append({"role": "user", "text": user_text})
-        with st.spinner("Thinking..."):
-            try:
-                response = client.chat.completions.create(
-                    model="openai/gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "You are a helpful and detailed assistant. Always explain your answers clearly and thoroughly."},
-                        *[{"role": m["role"], "content": m["text"]} for m in st.session_state.messages]
-                    ]
-                )
-                reply = response.choices[0].message.content
-                st.session_state.messages.append({"role": "assistant", "text": reply})
-                st.session_state.user_input = ""
-            except Exception as e:
-                st.error(f"❌ Error: {e}")
+    if not user_text:
+        return
 
-# Input box
+    st.session_state.messages.append({"role": "user", "text": user_text})
+    with st.spinner("Thinking..."):
+        try:
+            response = client.chat.completions.create(
+                model="openai/gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful and detailed assistant."},
+                    *[{"role": m["role"], "content": m["text"]} for m in st.session_state.messages]
+                ]
+            )
+            reply = response.choices[0].message.content
+            st.session_state.messages.append({"role": "assistant", "text": reply})
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+    st.session_state.user_input = ""
+
+# --- Input text box ---
 st.text_input("Type your message...", key="user_input", on_change=handle_input, placeholder="Ask anything...")
