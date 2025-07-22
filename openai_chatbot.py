@@ -3,10 +3,8 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-# --- Page Setup ---
 st.set_page_config(page_title="OpenAI Chatbot", layout="wide", page_icon="🤖")
 
-# --- Load Secrets from Streamlit Cloud or .env ---
 load_dotenv()
 api_key = st.secrets.get("OPENAI_API_KEY", os.getenv("OPENAI_API_KEY"))
 base_url = st.secrets.get("OPENAI_BASE_URL", os.getenv("OPENAI_BASE_URL"))
@@ -17,7 +15,6 @@ if not api_key:
 
 client = OpenAI(api_key=api_key, base_url=base_url)
 
-# --- Custom Styles for UI ---
 st.markdown("""
     <style>
         .main {
@@ -47,11 +44,9 @@ st.markdown("""
 
 st.markdown("<h1 style='color:white;'>🤖 OpenAI Chatbot</h1>", unsafe_allow_html=True)
 
-# --- Session State Setup ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- Display Chat History ---
 for msg in st.session_state.messages:
     role_class = "user" if msg["role"] == "user" else "assistant"
     st.markdown(
@@ -59,13 +54,11 @@ for msg in st.session_state.messages:
         unsafe_allow_html=True
     )
 
-# --- Handle Input ---
 def handle_input():
     user_text = st.session_state.user_input.strip()
     if user_text:
         st.session_state.messages.append({"role": "user", "text": user_text})
 
-        # Build message history with instruction
         full_convo = [
             {"role": "system", "content": (
                 "You are a helpful and highly detailed assistant. "
@@ -86,5 +79,4 @@ def handle_input():
         except Exception as e:
             st.error(f"❌ Error: {e}")
 
-# --- Input Box ---
 st.text_input("Type your message...", key="user_input", on_change=handle_input, placeholder="Ask anything...")
